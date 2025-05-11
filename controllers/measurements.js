@@ -1,4 +1,5 @@
-import {addPowers, addVoltageCurrents, addSubStationPowers} from '../services/db.js';
+import {addPowers, addVoltageCurrents, addSubStationPowers, addCustomerConsumption} from '../services/db.js';
+import { exportToAnalytics } from '../services/analytics.js';
 
 const addNewMeasurements = async function(req, res) {
     const startTime = Date.parse(req.body.metadata.timestamp_start);
@@ -11,6 +12,7 @@ const addNewMeasurements = async function(req, res) {
     };
     try{
         for(let i = 0; i < dataConcentrators.length; i++){
+            //exportToAnalytics(dataConcentrators[i]);
             let powers = dataConcentrators[i].payload.powers;
             for(let j = 0; j < powers.length; j++){
                 powers[j].timestamp = new Date(startTime + (powers[j].timestamp * simulationTimeMs / setStopTimeS));
@@ -23,7 +25,13 @@ const addNewMeasurements = async function(req, res) {
             }
             voltageCurrents = await addVoltageCurrents(voltageCurrents);
 
-            if(powers && voltageCurrents){
+            let customerConsumption = dataConcentrators[i].payload.smartMeters; 
+            for(let j = 0; j < customerConsumption.length; j++){
+                customerConsumption[j].timestamp = new Date(startTime + (customerConsumption[j].timestamp * simulationTimeMs / setStopTimeS));
+            }
+            customerConsumption = await addCustomerConsumption(customerConsumption);
+
+            if(powers && voltageCurrents && customerConsumption){
                 reply.send = 'sucess';
             }else{
                 reply.send = 'fail';

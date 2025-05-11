@@ -25,5 +25,10 @@ const addSubStationPowers = async function(subStationPowers){
         data: subStationPowers, 
     });
 }
+const addCustomerConsumption = async function(customerConsumption){
+    const result = await prisma.customerConsumption.createMany({
+        data: customerConsumption, 
+    });
+}
 
-export {addSensors, addPowers, addVoltageCurrents, addSubStationPowers};
+export {addSensors, addPowers, addVoltageCurrents, addSubStationPowers, addCustomerConsumption};
