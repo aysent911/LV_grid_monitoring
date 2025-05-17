@@ -12,25 +12,28 @@ const addNewMeasurements = async function(req, res) {
     };
     try{
         for(let i = 0; i < dataConcentrators.length; i++){
-            //exportToAnalytics(dataConcentrators[i]);
+            
             let powers = dataConcentrators[i].payload.powers;
             for(let j = 0; j < powers.length; j++){
                 powers[j].timestamp = new Date(startTime + (powers[j].timestamp * simulationTimeMs / setStopTimeS));
             }
+            dataConcentrators[i].payload.powers = powers;
             powers = await addPowers(powers);
 
             let voltageCurrents = dataConcentrators[i].payload.voltageCurrents; 
             for(let j = 0; j < voltageCurrents.length; j++){
                 voltageCurrents[j].timestamp = new Date(startTime + (voltageCurrents[j].timestamp * simulationTimeMs / setStopTimeS));
             }
+            dataConcentrators[i].payload.voltageCurrents = voltageCurrents;
             voltageCurrents = await addVoltageCurrents(voltageCurrents);
 
             let customerConsumption = dataConcentrators[i].payload.smartMeters; 
             for(let j = 0; j < customerConsumption.length; j++){
                 customerConsumption[j].timestamp = new Date(startTime + (customerConsumption[j].timestamp * simulationTimeMs / setStopTimeS));
             }
+            dataConcentrators[i].payload.smartMeters = customerConsumption;
             customerConsumption = await addCustomerConsumption(customerConsumption);
-
+            exportToAnalytics(dataConcentrators[i]);
             if(powers && voltageCurrents && customerConsumption){
                 reply.send = 'sucess';
             }else{

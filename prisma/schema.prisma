@@ -1,66 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
-    provider = "postgresql"
-    url = env("DATABASE_URL")
-}
-
-generator  client {
-    provider = "prisma-client-js"
-}
-
-model Sensor {
-    id          String  @unique @db.VarChar(10)
-    type        String          @db.VarChar(10)
-    feeder      String          @db.VarChar(10)
-    latitude    Float?          @db.DoublePrecision
-    longitude   Float?          @db.DoublePrecision
-    voltageCurrents      VoltageCurrent[]
-    powers               Power[]
-    subStationPowers          SubStationPower[]
-    customerConsumption       CustomerConsumption[]
-}
-
-model VoltageCurrent {
-    timestamp   DateTime        @db.Timestamptz(3)
-    sensor      Sensor          @relation(fields: [sensorId], references: [id])
-    sensorId    String          @db.VarChar(10)
-    Va          Float           @db.Real
-    Vb          Float           @db.Real
-    Vc          Float           @db.Real
-    Ia          Float           @db.Real
-    Ib          Float           @db.Real
-    Ic          Float           @db.Real
-    faultType   Int?            @db.SmallInt
-    
-    @@unique([timestamp, sensorId])
-}
-
-model Power {
-    timestamp   DateTime        @db.Timestamptz(3)
-    sensor      Sensor          @relation(fields: [sensorId], references: [id])
-    sensorId    String          @db.VarChar(10)
-    Pfeed       Float           @db.Real
-    Qfeed       Float           @db.Real
-    Pagg        Float           @db.Real
-    Qagg        Float           @db.Real
-    faultType   Int?            @db.SmallInt
-    
-    @@unique([timestamp, sensorId])
-}
-
-model SubStationPower {
-    timestamp   DateTime        @db.Timestamptz(3)
-    sensorId    String          @db.VarChar(10)
-    sensor      Sensor          @relation(fields: [sensorId], references: [id])
-    Psub        Float           @db.Real
-    Qsub        Float           @db.Real
-    @@unique([timestamp, sensorId])
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model CustomerConsumption {
-    timestamp   DateTime          @db.Timestamptz(3)
-    sensorId    String            @db.VarChar(10)
-    sensor      Sensor            @relation(fields: [sensorId], references: [id])
-    P           Float             @db.Real
-    Q           Float             @db.Real
-    @@unique([timestamp, sensorId])
+  timestamp DateTime @db.Timestamptz(3)
+  sensorId  String   @db.VarChar(10)
+  P         Float    @db.Real
+  Q         Float    @db.Real
+  Sensor    Sensor   @relation(fields: [sensorId], references: [id])
+
+  @@unique([timestamp, sensorId])
+}
+
+model Loss {
+  timestamp DateTime @db.Timestamptz(3)
+  feeder    String   @db.VarChar(10)
+  segment   String   @db.VarChar(10)
+  loss      Float    @db.Real
+
+  @@unique([timestamp, feeder, segment])
+}
+
+model Power {
+  timestamp DateTime @db.Timestamptz(3)
+  sensorId  String   @db.VarChar(10)
+  Pfeed     Float    @db.Real
+  Qfeed     Float    @db.Real
+  Pagg      Float    @db.Real
+  Qagg      Float    @db.Real
+  faultType Int?     @db.SmallInt
+  Sensor    Sensor   @relation(fields: [sensorId], references: [id])
+
+  @@unique([timestamp, sensorId])
+}
+
+model Sensor {
+  id                  String                @unique @db.VarChar(10)
+  type                String                @db.VarChar(10)
+  feeder              String                @db.VarChar(10)
+  latitude            Float?
+  longitude           Float?
+  segment             String?               @db.VarChar(10)
+  CustomerConsumption CustomerConsumption[]
+  Power               Power[]
+  SubStationPower     SubStationPower[]
+  VoltageCurrent      VoltageCurrent[]
+}
+
+model SubStationPower {
+  timestamp DateTime @db.Timestamptz(3)
+  sensorId  String   @db.VarChar(10)
+  Psub      Float    @db.Real
+  Qsub      Float    @db.Real
+  Sensor    Sensor   @relation(fields: [sensorId], references: [id])
+
+  @@unique([timestamp, sensorId])
+}
+
+model VoltageCurrent {
+  timestamp DateTime @db.Timestamptz(3)
+  sensorId  String   @db.VarChar(10)
+  Va        Float    @db.Real
+  Vb        Float    @db.Real
+  Vc        Float    @db.Real
+  Ia        Float    @db.Real
+  Ib        Float    @db.Real
+  Ic        Float    @db.Real
+  faultType Int?     @db.SmallInt
+  Sensor    Sensor   @relation(fields: [sensorId], references: [id])
+
+  @@unique([timestamp, sensorId])
+}
+
+model sensor {
+  id        String  @id @db.VarChar(10)
+  type      String  @db.VarChar(10)
+  feeder    String  @db.VarChar(10)
+  segment   String? @db.VarChar(10)
+  latitude  Float?
+  longitude Float?
 }
