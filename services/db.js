@@ -31,4 +31,12 @@ const addCustomerConsumption = async function(customerConsumption){
     });
 }
 
-export {addSensors, addPowers, addVoltageCurrents, addSubStationPowers, addCustomerConsumption};
+const addPowerLoss = async function(powerLoss){
+    const result = await prisma.loss.createMany({
+        data: powerLoss, 
+    });
+    console.log(powerLoss);
+}
+
+
+export {addSensors, addPowers, addVoltageCurrents, addSubStationPowers, addCustomerConsumption, addPowerLoss};
